@@ -66,6 +66,10 @@ public class HttpScoreBoardController extends ScoreBoardController {
                 .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build())
                 .build();
 
+        initUI();
+    }
+
+    private void initUI() {
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 

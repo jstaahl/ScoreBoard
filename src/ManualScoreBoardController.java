@@ -33,11 +33,14 @@ public class ManualScoreBoardController extends ScoreBoardController {
     private DocumentListener team1NameListener;
     private DocumentListener team2NameListener;
 
-    private Dimension size;
-
     public ManualScoreBoardController(final ScoreBoardPanel scoreBoard) {
         super(scoreBoard);
 
+        initUI();
+        addKeyBindings();
+    }
+
+    private void initUI() {
         team1SmallDec = new JButton("-");
         team1SmallDec.setPreferredSize(SCORE_DEC_DIMEN);
         team1SmallDec.addActionListener(new ActionListener() {
@@ -186,7 +189,6 @@ public class ManualScoreBoardController extends ScoreBoardController {
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
-        int scoreSpacing = 100;
         JSeparator sep;
 
         c.gridy = 0; c.gridx = 0;
@@ -252,9 +254,6 @@ public class ManualScoreBoardController extends ScoreBoardController {
         c.fill = GridBagConstraints.HORIZONTAL;
         add(resetGameScore, c);
 
-        //size = new Dimension(700, );
-
-        addKeyBindings();
     }
 
     @Override
