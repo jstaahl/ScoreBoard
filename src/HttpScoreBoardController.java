@@ -20,9 +20,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
-import java.util.Timer;
 
 /**
  * Cannot handle a golden set! (How is this rendered in the live score table??)
