@@ -1,3 +1,5 @@
+package view.extra;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,10 +14,6 @@ public class SmoothFixedSizeLabel extends JLabel {
 
     public SmoothFixedSizeLabel(Dimension size) {
         this("", size);
-    }
-
-    public void setWidth(Dimension size) {
-        this.size = size;
     }
 
     @Override

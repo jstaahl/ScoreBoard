@@ -1,3 +1,10 @@
+package scoreboardcontrollers;
+
+import model.ScoreBoard;
+import model.ScoreBoardModifier;
+import view.scoreboard.ScoreBoardPanel;
+import view.extra.SmoothFixedSizeNumberLabel;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -13,6 +20,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
     private static final Dimension SCORE_DEC_DIMEN = new Dimension(20, 30);
     private static final Dimension RESET_GAME_SCORE_DIMEN = new Dimension(60, 40);
     private static final Dimension RESET_ALL_SCORE_DIMEN = new Dimension(140, 40);
+    private static final String DESCRIPTION = "Manual Score Board Control";
 
     private JLabel team1Label;
     private JLabel team2Label;
@@ -33,8 +41,8 @@ public class ManualScoreBoardController extends ScoreBoardController {
     private DocumentListener team1NameListener;
     private DocumentListener team2NameListener;
 
-    public ManualScoreBoardController(final ScoreBoardPanel scoreBoard) {
-        super(scoreBoard);
+    public ManualScoreBoardController(ScoreBoard score) {
+        super(score);
 
         initUI();
         addKeyBindings();
@@ -45,14 +53,14 @@ public class ManualScoreBoardController extends ScoreBoardController {
         team1SmallDec.setPreferredSize(SCORE_DEC_DIMEN);
         team1SmallDec.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                doTeam1RemoveSmallPoint();
+                scoreBoard.team1RemoveSmallPoint(ManualScoreBoardController.this);
             }
         });
         team2SmallDec = new JButton("-");
         team2SmallDec.setPreferredSize(SCORE_DEC_DIMEN);
         team2SmallDec.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                doTeam2RemoveSmallPoint();
+                scoreBoard.team2RemoveSmallPoint(ManualScoreBoardController.this);
             }
         });
 
@@ -60,14 +68,14 @@ public class ManualScoreBoardController extends ScoreBoardController {
         team1BigDec.setPreferredSize(SCORE_DEC_DIMEN);
         team1BigDec.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                doTeam1RemoveBigPoint();
+                scoreBoard.team1RemoveBigPoint(ManualScoreBoardController.this);
             }
         });
         team2BigDec = new JButton("-");
         team2BigDec.setPreferredSize(SCORE_DEC_DIMEN);
         team2BigDec.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                doTeam2RemoveBigPoint();
+                scoreBoard.team2RemoveBigPoint(ManualScoreBoardController.this);
             }
         });
 
@@ -75,12 +83,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
         resetAllScore.setPreferredSize(RESET_ALL_SCORE_DIMEN);
         resetAllScore.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                scoreBoard.setBigPoints(0, 0);
-                scoreBoard.setSmallPoints(0, 0);
-                team1BigScore.setValue(0);
-                team2BigScore.setValue(0);
-                team1SmallScore.setValue(0);
-                team2SmallScore.setValue(0);
+                scoreBoard.setPoints(ManualScoreBoardController.this, 0, 0, 0, 0);
             }
         });
 
@@ -88,9 +91,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
         resetGameScore.setPreferredSize(RESET_GAME_SCORE_DIMEN);
         resetGameScore.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                scoreBoard.setSmallPoints(0, 0);
-                team1SmallScore.setValue(0);
-                team2SmallScore.setValue(0);
+                scoreBoard.setSmallPoints(ManualScoreBoardController.this, 0, 0);
             }
         });
 
@@ -98,15 +99,15 @@ public class ManualScoreBoardController extends ScoreBoardController {
         team1Name = new JTextField(TEAM_NAME_COLS);
         team1NameListener = new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
-                scoreBoard.setTeam1Name(team1Name.getText());
+                scoreBoard.setTeam1Name(ManualScoreBoardController.this, team1Name.getText());
             }
 
             public void removeUpdate(DocumentEvent e) {
-                scoreBoard.setTeam1Name(team1Name.getText());
+                scoreBoard.setTeam1Name(ManualScoreBoardController.this, team1Name.getText());
             }
 
             public void insertUpdate(DocumentEvent e) {
-                scoreBoard.setTeam1Name(team1Name.getText());
+                scoreBoard.setTeam1Name(ManualScoreBoardController.this, team1Name.getText());
             }
         };
         team1Name.getDocument().addDocumentListener(team1NameListener);
@@ -115,15 +116,15 @@ public class ManualScoreBoardController extends ScoreBoardController {
         team2Name = new JTextField(TEAM_NAME_COLS);
         team2NameListener = new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
-                scoreBoard.setTeam2Name(team2Name.getText());
+                scoreBoard.setTeam2Name(ManualScoreBoardController.this, team2Name.getText());
             }
 
             public void removeUpdate(DocumentEvent e) {
-                scoreBoard.setTeam2Name(team2Name.getText());
+                scoreBoard.setTeam2Name(ManualScoreBoardController.this, team2Name.getText());
             }
 
             public void insertUpdate(DocumentEvent e) {
-                scoreBoard.setTeam2Name(team2Name.getText());
+                scoreBoard.setTeam2Name(ManualScoreBoardController.this, team2Name.getText());
             }
         };
         team2Name.getDocument().addDocumentListener(team2NameListener);
@@ -139,7 +140,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
         {
             public void mouseClicked(MouseEvent e)
             {
-                doTeam1ScoreSmallPoint();
+                scoreBoard.team1ScoreSmallPoint(ManualScoreBoardController.this);
             }
         });
 
@@ -154,7 +155,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
         {
             public void mouseClicked(MouseEvent e)
             {
-                doTeam2ScoreSmallPoint();
+                scoreBoard.team2ScoreSmallPoint(ManualScoreBoardController.this);
             }
         });
 
@@ -167,7 +168,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
         team1BigScore.setFont(ScoreBoardPanel.BIG_POINTS_FONT);
         team1BigScore.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                doTeam1ScoreBigPoint();
+                scoreBoard.team1ScoreBigPoint(ManualScoreBoardController.this);
             }
         });
 
@@ -182,7 +183,7 @@ public class ManualScoreBoardController extends ScoreBoardController {
         {
             public void mouseClicked(MouseEvent e)
             {
-                doTeam2ScoreBigPoint();
+                scoreBoard.team2ScoreBigPoint(ManualScoreBoardController.this);
             }
         });
 
@@ -256,31 +257,14 @@ public class ManualScoreBoardController extends ScoreBoardController {
 
     }
 
-    @Override
-    public void enableController(String team1Name, String team2Name, int team1BigScore, int team2BigScore, int team1SmallScore, int team2SmallScore) {
-        this.team1Name.getDocument().removeDocumentListener(team1NameListener);
-        this.team1Name.setText(team1Name);
-        this.team1Name.getDocument().addDocumentListener(team1NameListener);
-
-        this.team2Name.getDocument().removeDocumentListener(team2NameListener);
-        this.team2Name.setText(team2Name);
-        this.team2Name.getDocument().addDocumentListener(team2NameListener);
-
-        this.team1BigScore.setValue(team1BigScore);
-        this.team2BigScore.setValue(team2BigScore);
-        this.team1SmallScore.setValue(team1SmallScore);
-        this.team2SmallScore.setValue(team2SmallScore);
-    }
-
     private void addKeyBindings() {
         KeyEventDispatcher scoreControlDispatcher = new KeyEventDispatcher() {
-            @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_UP && e.getID() == KeyEvent.KEY_PRESSED) {
-                    doTeam1ScoreSmallPoint();
+                    scoreBoard.team1ScoreSmallPoint(ManualScoreBoardController.this);
                     return true;
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN && e.getID() == KeyEvent.KEY_PRESSED) {
-                    doTeam2ScoreSmallPoint();
+                    scoreBoard.team2ScoreSmallPoint(ManualScoreBoardController.this);
                     return true;
                 }
                 return false;
@@ -291,51 +275,39 @@ public class ManualScoreBoardController extends ScoreBoardController {
         focusManager.addKeyEventDispatcher(scoreControlDispatcher);
     }
 
-    private void doTeam1ScoreSmallPoint() {
-        if (isEnabled()) {
-            team1SmallScore.setValue(scoreBoard.team1ScoreSmallPoint());
+
+    @Override
+    public String getDescription() {
+        return DESCRIPTION;
+    }
+
+    @Override
+    protected void activate() {
+
+    }
+
+    @Override
+    protected void deactivate() {
+
+    }
+
+
+    public void notifyUpdateTeamNames(ScoreBoardModifier modifier) {
+        if (modifier != this) {
+            this.team1Name.getDocument().removeDocumentListener(team1NameListener);
+            this.team1Name.setText(scoreBoard.getTeam1Name());
+            this.team1Name.getDocument().addDocumentListener(team1NameListener);
+
+            this.team2Name.getDocument().removeDocumentListener(team2NameListener);
+            this.team2Name.setText(scoreBoard.getTeam2Name());
+            this.team2Name.getDocument().addDocumentListener(team2NameListener);
         }
     }
 
-    private void doTeam2ScoreSmallPoint() {
-        if (isEnabled()) {
-            team2SmallScore.setValue(scoreBoard.team2ScoreSmallPoint());
-        }
-    }
-
-    private void doTeam1RemoveSmallPoint() {
-        if (isEnabled()) {
-            team1SmallScore.setValue(scoreBoard.team1RemoveSmallPoint());
-        }
-    }
-
-    private void doTeam2RemoveSmallPoint() {
-        if (isEnabled()) {
-            team2SmallScore.setValue(scoreBoard.team2RemoveSmallPoint());
-        }
-    }
-
-    private void doTeam1ScoreBigPoint() {
-        if (isEnabled()) {
-            team1BigScore.setValue(scoreBoard.team1ScoreBigPoint());
-        }
-    }
-
-    private void doTeam2ScoreBigPoint() {
-        if (isEnabled()) {
-            team2BigScore.setValue(scoreBoard.team2ScoreBigPoint());
-        }
-    }
-
-    private void doTeam1RemoveBigPoint() {
-        if (isEnabled()) {
-            team1BigScore.setValue(scoreBoard.team1RemoveBigPoint());
-        }
-    }
-
-    private void doTeam2RemoveBigPoint() {
-        if (isEnabled()) {
-            team2BigScore.setValue(scoreBoard.team2RemoveBigPoint());
-        }
+    public void notifyUpdateScore(ScoreBoardModifier modifier) {
+        this.team1BigScore.setValue(scoreBoard.getTeam1BigScore());
+        this.team2BigScore.setValue(scoreBoard.getTeam2BigScore());
+        this.team1SmallScore.setValue(scoreBoard.getTeam1SmallScore());
+        this.team2SmallScore.setValue(scoreBoard.getTeam2SmallScore());
     }
 }

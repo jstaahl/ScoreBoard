@@ -1,3 +1,5 @@
+package view.extra;
+
 import java.awt.*;
 
 /**

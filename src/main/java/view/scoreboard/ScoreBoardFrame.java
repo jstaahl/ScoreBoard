@@ -1,3 +1,7 @@
+package view.scoreboard;
+
+import model.ScoreBoard;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,10 +11,10 @@ import java.awt.*;
 public class ScoreBoardFrame extends JFrame {
     private final ScoreBoardPanel panel;
 
-    public ScoreBoardFrame(String team1Name, String team2Name) {
+    public ScoreBoardFrame(ScoreBoardPanel panel) {
         super("###SCORE###");
 
-        panel = new ScoreBoardPanel(team1Name, team2Name);
+        this.panel = panel;
 
         setUndecorated(true);
         add(panel);
@@ -21,10 +25,6 @@ public class ScoreBoardFrame extends JFrame {
 
         pack();
         setVisible(true);
-    }
-
-    public ScoreBoardFrame() {
-        this("", "");
     }
 
     public ScoreBoardPanel getScoreBoard() {

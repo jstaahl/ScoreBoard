@@ -1,3 +1,7 @@
+package scoreboardcontrollers;
+
+import model.ScoreBoard;
+import model.ScoreBoardModifier;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.http.HttpEntity;
@@ -30,6 +34,7 @@ public class HttpScoreBoardController extends ScoreBoardController {
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19";
     private static final Dimension START_BUTTON_DIMEN = new Dimension(100, 20);
     private static final int LOG_TEXT_AREA_COLS = 30;
+    private static final String DESCRIPTION = "Automated Score Board Control from Live Score URL";
 
     private JLabel urlLabel;
     private JLabel team1Label;
@@ -53,7 +58,7 @@ public class HttpScoreBoardController extends ScoreBoardController {
     private HttpClient httpClient;
 
 
-    public HttpScoreBoardController(final ScoreBoardPanel scoreBoard) {
+    public HttpScoreBoardController(final ScoreBoard scoreBoard) {
         super(scoreBoard);
 
         stateLock = new Semaphore(1);
@@ -99,18 +104,18 @@ public class HttpScoreBoardController extends ScoreBoardController {
         team1Name = new JTextField(18);
         team1NameListener = new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
-                scoreBoard.setTeam1Name(team1Name.getText());
                 saveTeamNames = false;
+                scoreBoard.setTeam1Name(HttpScoreBoardController.this, team1Name.getText());
             }
 
             public void removeUpdate(DocumentEvent e) {
-                scoreBoard.setTeam1Name(team1Name.getText());
                 saveTeamNames = false;
+                scoreBoard.setTeam1Name(HttpScoreBoardController.this, team1Name.getText());
             }
 
             public void insertUpdate(DocumentEvent e) {
-                scoreBoard.setTeam1Name(team1Name.getText());
                 saveTeamNames = false;
+                scoreBoard.setTeam1Name(HttpScoreBoardController.this, team1Name.getText());
             }
         };
         team1Name.getDocument().addDocumentListener(team1NameListener);
@@ -120,18 +125,18 @@ public class HttpScoreBoardController extends ScoreBoardController {
         team2Name = new JTextField(18);
         team2NameListener = new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
-                scoreBoard.setTeam2Name(team2Name.getText());
                 saveTeamNames = false;
+                scoreBoard.setTeam2Name(HttpScoreBoardController.this, team2Name.getText());
             }
 
             public void removeUpdate(DocumentEvent e) {
-                scoreBoard.setTeam2Name(team2Name.getText());
                 saveTeamNames = false;
+                scoreBoard.setTeam2Name(HttpScoreBoardController.this, team2Name.getText());
             }
 
             public void insertUpdate(DocumentEvent e) {
-                scoreBoard.setTeam2Name(team2Name.getText());
                 saveTeamNames = false;
+                scoreBoard.setTeam2Name(HttpScoreBoardController.this, team2Name.getText());
             }
         };
         team2Name.getDocument().addDocumentListener(team2NameListener);
@@ -181,13 +186,15 @@ public class HttpScoreBoardController extends ScoreBoardController {
         }
         stillScoring = false;
         stateLock.release();
-        if (scoringThread != null && !Thread.currentThread().getClass().equals(ScoringThread.class)) {
-            try {
+
+        try {
+            if (scoringThread != null) {
                 scoringThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
         startButton.setText("Start");
         if (!logContainsUsefulErrorMessage) {
             log.setText("");
@@ -291,22 +298,9 @@ public class HttpScoreBoardController extends ScoreBoardController {
         }
 
         if (saveTeamNames) {
-            //first we need to turn off the document listener
-            this.team1Name.getDocument().removeDocumentListener(team1NameListener);
-            this.team2Name.getDocument().removeDocumentListener(team2NameListener);
-
-            this.team1Name.setText(team1Name);
-            scoreBoard.setTeam1Name(team1Name);
-            this.team2Name.setText(team2Name);
-            scoreBoard.setTeam2Name(team2Name);
-
-            this.team1Name.getDocument().addDocumentListener(team1NameListener);
-            this.team2Name.getDocument().addDocumentListener(team2NameListener);
-            //then turn it back one
+            scoreBoard.setTeamNames(this, team1Name, team2Name);
         }
-
-        scoreBoard.setBigPoints(team1BigPoints, team2BigPoints);
-        scoreBoard.setSmallPoints(team1SmallPoints, team2SmallPoints);
+        scoreBoard.setPoints(this, team1BigPoints, team2BigPoints, team1SmallPoints, team2SmallPoints);
         saveTeamNames = false;
 
         return true;
@@ -322,27 +316,37 @@ public class HttpScoreBoardController extends ScoreBoardController {
         log.setText(WordUtils.wrap(message, LOG_TEXT_AREA_COLS-1));
     }
 
-    @Override
-    public void enableController(String team1Name, String team2Name, int team1BigScore, int team2BigScore, int team1SmallScore, int team2SmallScore) {
-        this.team1Name.getDocument().removeDocumentListener(team1NameListener);
-        this.team2Name.getDocument().removeDocumentListener(team2NameListener);
+    public void notifyUpdateTeamNames(ScoreBoardModifier modifier) {
+        if (modifier != this && saveTeamNames) {
+            this.team1Name.getDocument().removeDocumentListener(team1NameListener);
+            this.team2Name.getDocument().removeDocumentListener(team2NameListener);
 
-        this.team1Name.setText(team1Name);
-        this.team2Name.setText(team2Name);
+            this.team1Name.setText(scoreBoard.getTeam1Name());
+            this.team2Name.setText(scoreBoard.getTeam2Name());
 
-        this.team1Name.getDocument().addDocumentListener(team1NameListener);
-        this.team2Name.getDocument().addDocumentListener(team2NameListener);
+            this.team1Name.getDocument().addDocumentListener(team1NameListener);
+            this.team2Name.getDocument().addDocumentListener(team2NameListener);
+        }
+    }
 
-        saveTeamNames = true;
+    public void notifyUpdateScore(ScoreBoardModifier modifier) {
+
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        if (!enabled) {
-            stopScoringFromUrl();
-        }
+    public String getDescription() {
+        return DESCRIPTION;
+    }
 
-        super.setEnabled(enabled);
+    @Override
+    protected void activate() {
+
+    }
+
+    @Override
+    protected void deactivate() {
+        stopScoringFromUrl();
+        saveTeamNames = true;
     }
 
     private class ScoringThread extends Thread {
@@ -355,7 +359,6 @@ public class HttpScoreBoardController extends ScoreBoardController {
         @Override
         public void run() {
             do {
-                //!! fix this
                 updateScore(url);
                 try {
                     Thread.sleep(QUERY_DELAY_MS);
