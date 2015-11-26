@@ -26,7 +26,6 @@ public class Main {
         ScoreBoardControllerFrame controllerFrame = new ScoreBoardControllerFrame();
         controllerFrame.addScoreBoardController(manualController);
         controllerFrame.addScoreBoardController(httpController);
-        controllerFrame.pack();
-
+        controllerFrame.finalize();
     }
 }

@@ -48,10 +48,6 @@ public class ScoreBoardControllerFrame extends JFrame implements ActionListener 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         radioButtonGroup = new ButtonGroup();
-
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
-        setVisible(true);
     }
 
     public void addScoreBoardController(ScoreBoardController controller) {
@@ -86,6 +82,13 @@ public class ScoreBoardControllerFrame extends JFrame implements ActionListener 
         }
 
         return false;
+    }
+
+    public void finalize() {
+        pack();
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
+        setVisible(true);
     }
 
     public void actionPerformed(ActionEvent e) {
