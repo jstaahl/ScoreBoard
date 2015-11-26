@@ -203,7 +203,7 @@ public class HttpScoreBoardController extends ScoreBoardController {
     }
 
     // spawns a new thread to make
-    private boolean updateScore(final String url) {
+    private boolean updateScore(final String url, ScoreBoardModifier modifier) {
         boolean result = false;
         try {
             HttpClientContext context = HttpClientContext.create();
@@ -218,7 +218,7 @@ public class HttpScoreBoardController extends ScoreBoardController {
             stateLock.acquire();
             if (stillScoring) {
                 if (response.getStatusLine().getStatusCode() == 200) {
-                    result = processHtml(html);
+                    result = processHtml(html, modifier);
                     if (!result) {
                         setLogError("Warning: The returned web pages do not contain " +
                                 "the expected data. Are you sure you have provided the url to the simple live " +
@@ -246,7 +246,7 @@ public class HttpScoreBoardController extends ScoreBoardController {
 
 
     // return true on success (information received was expected), false otherwise
-    public boolean processHtml(String html) {
+    public boolean processHtml(String html, ScoreBoardModifier modifier) {
         String team1Name;
         String team2Name;
         int team1BigPoints;
@@ -298,9 +298,9 @@ public class HttpScoreBoardController extends ScoreBoardController {
         }
 
         if (saveTeamNames) {
-            scoreBoard.setTeamNames(this, team1Name, team2Name);
+            scoreBoard.setTeamNames(modifier, team1Name, team2Name);
         }
-        scoreBoard.setPoints(this, team1BigPoints, team2BigPoints, team1SmallPoints, team2SmallPoints);
+        scoreBoard.setPoints(modifier, team1BigPoints, team2BigPoints, team1SmallPoints, team2SmallPoints);
         saveTeamNames = false;
 
         return true;
@@ -349,7 +349,7 @@ public class HttpScoreBoardController extends ScoreBoardController {
         saveTeamNames = true;
     }
 
-    private class ScoringThread extends Thread {
+    private class ScoringThread extends Thread implements ScoreBoardModifier {
         private final String url;
 
         public ScoringThread(String url) {
@@ -359,13 +359,21 @@ public class HttpScoreBoardController extends ScoreBoardController {
         @Override
         public void run() {
             do {
-                updateScore(url);
+                updateScore(url, this);
                 try {
                     Thread.sleep(QUERY_DELAY_MS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             } while (stillScoring); //this is only a soft check. A thread-safe check is performed inside of updateScore
+        }
+
+        public boolean isActivated() {
+            return HttpScoreBoardController.this.isActivated();
+        }
+
+        public void setActivated(boolean activated) {
+
         }
     }
 }
