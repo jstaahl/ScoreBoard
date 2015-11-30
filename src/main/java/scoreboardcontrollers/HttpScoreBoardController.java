@@ -2,8 +2,8 @@ package scoreboardcontrollers;
 
 import model.ScoreBoard;
 import model.ScoreBoardModifier;
-import org.apache.commons.lang.WordUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
