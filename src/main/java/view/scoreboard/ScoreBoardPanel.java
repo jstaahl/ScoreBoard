@@ -16,9 +16,9 @@ import java.io.IOException;
  * Created by jakestaahl on 11/17/15.
  */
 public class ScoreBoardPanel extends JPanel implements ScoreBoardUpdateListener {
-    private static final String BG_LEFT_FILE_NAME = "/graphic_stretch_1.png";
-    private static final String BG_MIDDLE_FILE_NAME = "/graphic_stretch_2.png";
-    private static final String BG_RIGHT_FILE_NAME = "/graphic_stretch_3.png";
+    private static final String BG_LEFT_FILE_NAME = "/images/graphic_stretch_1.png";
+    private static final String BG_MIDDLE_FILE_NAME = "/images/graphic_stretch_2.png";
+    private static final String BG_RIGHT_FILE_NAME = "/images/graphic_stretch_3.png";
 
     private static final int BG_MIDDLE_MIN_WIDTH = 70;
 
